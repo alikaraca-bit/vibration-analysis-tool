@@ -1,24 +1,27 @@
 import streamlit as st
 import pandas as pd
 
-# ... your imports and functions ...
-
-# 1. SIDEBAR UPLOADERS
+# 1. SETUP UPLOADERS
+st.sidebar.header("Upload Files")
 coord_file = st.sidebar.file_uploader("Upload Coordinates CSV", type=['csv'])
 freq_file = st.sidebar.file_uploader("Upload Frequencies CSV", type=['csv'])
 
-# 2. WRAP EVERYTHING IN THE DATA CHECK
-if coord_file and freq_file:
-    # Perform your data loading and processing here
+# 2. ONLY RUN ANALYSIS IF FILES ARE UPLOADED
+if coord_file is not None and freq_file is not None:
+    # Load and process data
     df_coord = pd.read_csv(coord_file)
     df_freq = pd.read_csv(freq_file)
     
-    # Define df_valid HERE inside the block
-    df_valid = ... # Your merging logic here
+    # ... [Your merging/processing code here] ...
     
-    # NOW the selectbox will work because df_valid exists
-    selected_time = st.selectbox("Select Timestamp", df_valid['timestamp'].dt.strftime('%H:%M:%S').unique())
+    # Now that df_valid is created, we can safely show the selectbox
+    df_valid['timestamp'] = pd.to_datetime(df_valid['timestamp'])
+    time_options = df_valid['timestamp'].dt.strftime('%H:%M:%S').unique()
     
-    # ... rest of your plot code ...
+    selected_time = st.selectbox("Select Timestamp", time_options)
+    
+    # ... [Your plotting code here] ...
+
 else:
-    st.info("Please upload both CSV files to see the analysis.")
+    # This shows a friendly message instead of an error
+    st.info("Please upload both CSV files in the sidebar to begin analysis.")
